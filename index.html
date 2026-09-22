@@ -418,7 +418,14 @@
   }
   .parse-error .pe-hint{font-size:12.5px;color:var(--app-text-dim);line-height:1.5}
 
-  .grid-demo-track{display:grid;margin-bottom:8px}
+  .token-card{
+    background:var(--app-panel);
+    border:1px solid var(--app-border);
+    border-radius:10px;
+    padding:14px 16px;
+  }
+
+  .grid-demo-track{display:grid;margin-bottom:10px}
   .grid-demo-col{
     height:26px;border-radius:4px;
     display:flex;align-items:center;justify-content:center;
@@ -1414,6 +1421,9 @@
     var marginPx = toPxNumber(grid.margin);
     var tint = mix(roles.primary.hex, roles.background.hex, 0.86);
 
+    var card = document.createElement("div");
+    card.className = "token-card";
+
     var track = document.createElement("div");
     track.className = "grid-demo-track";
     track.style.gridTemplateColumns = "repeat(" + demoCols + ", 1fr)";
@@ -1427,7 +1437,7 @@
       col.textContent = String(i+1);
       track.appendChild(col);
     }
-    gridPreview.appendChild(track);
+    card.appendChild(track);
 
     var caption = document.createElement("div");
     caption.className = "grid-caption";
@@ -1436,7 +1446,9 @@
     if(grid.margin) parts.push(grid.margin + " margin");
     if(grid.maxWidth) parts.push("max-width " + grid.maxWidth);
     caption.textContent = parts.join(" · ");
-    gridPreview.appendChild(caption);
+    card.appendChild(caption);
+
+    gridPreview.appendChild(card);
   }
 
   function renderSpacing(spacing, roles){
@@ -1469,12 +1481,20 @@
       return;
     }
 
+    var hasBadgeOrSizes = icons.library || icons.sizes.length;
+    var card = null;
+    if(hasBadgeOrSizes){
+      card = document.createElement("div");
+      card.className = "token-card";
+      iconsPreview.appendChild(card);
+    }
+
     if(icons.library){
       var lib = document.createElement(icons.library.url ? "a" : "div");
       lib.className = "icon-lib-badge";
       if(icons.library.url){ lib.href = icons.library.url; lib.target = "_blank"; lib.rel = "noopener"; }
       lib.textContent = icons.library.name;
-      iconsPreview.appendChild(lib);
+      card.appendChild(lib);
     }
 
     if(icons.sizes.length){
@@ -1489,7 +1509,7 @@
           '<span class="icon-size-label">' + escapeHtml(s.token) + '<br>' + escapeHtml(s.value) + '</span>';
         sizeRow.appendChild(item);
       });
-      iconsPreview.appendChild(sizeRow);
+      card.appendChild(sizeRow);
     }
 
     icons.weights.forEach(function(w){
