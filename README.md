@@ -15,6 +15,7 @@ No build step, no dependencies. It's one static `index.html` file.
 - **Detected-tokens panel** — every parsed color and font is listed with its role, for a quick sanity check of what got picked up.
 - **Local persistence** — your last-edited content is kept in the browser's `localStorage`, so refreshing doesn't lose your work.
 - **Light/dark theme** — the app shell follows your OS preference by default; the toggle in the top-right corner pins an explicit choice, remembered across visits.
+- **Collapsible editor** — the panel icon next to the theme toggle hides the editor so the preview fills the whole screen; the choice is remembered across visits.
 
 ## Usage
 
