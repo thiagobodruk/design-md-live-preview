@@ -55,3 +55,7 @@ Everything lives in `index.html`: inline CSS for the app shell and the token-dri
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+---
+
+Created by [Thiago Bodruk](https://github.com/thiagobodruk).
