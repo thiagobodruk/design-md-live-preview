@@ -1,5 +1,7 @@
 # DESIGN.md Live Preview
 
+**[Live demo →](https://thiagobodruk.github.io/design-md-live-preview/)**
+
 A single-page tool that turns a `DESIGN.md` file into a live UI preview. Paste or upload your design tokens on one side and watch a mock landing page — buttons, cards, form, badges — restyle itself in real time on the other.
 
 No build step, no dependencies. It's one static `index.html` file.
@@ -15,7 +17,7 @@ No build step, no dependencies. It's one static `index.html` file.
 
 ## Usage
 
-Open `index.html` in any modern browser — locally, or via GitHub Pages once enabled for this repo (Settings → Pages → deploy from the `main` branch).
+Open `index.html` in any modern browser, or use the [live demo](https://thiagobodruk.github.io/design-md-live-preview/) served from this repo via GitHub Pages.
 
 For local development with a proper HTTP origin (needed for some browser features like clipboard access):
 
