@@ -5,22 +5,54 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>DESIGN.md Live Preview</title>
 <meta name="description" content="Upload a DESIGN.md and watch a live UI preview restyle itself from its color and typography tokens as you edit.">
+<meta name="color-scheme" content="light dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;650;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
+    /* light (default) */
+    --app-bg:#f3f3f5;
+    --app-panel:#ffffff;
+    --app-panel-2:#e9eaed;
+    --app-panel-hover:#e2e3e7;
+    --app-border:#dedfe3;
+    --app-border-hover:#c9cad0;
+    --app-text:#17181c;
+    --app-text-dim:#6b6e76;
+    --app-accent:#5b3fe0;
+    --app-accent-soft:rgba(91,63,224,.12);
+    --app-good:#1f9d68;
+    --font-sans:"Inter",ui-sans-serif,system-ui,-apple-system,sans-serif;
+    --font-mono:"JetBrains Mono","SFMono-Regular",Consolas,monospace;
+  }
+  @media(prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --app-bg:#0b0c10;
+      --app-panel:#141519;
+      --app-panel-2:#191b21;
+      --app-panel-hover:#1e212a;
+      --app-border:#262932;
+      --app-border-hover:#3a3e4a;
+      --app-text:#e7e8ec;
+      --app-text-dim:#8b8f99;
+      --app-accent:#7c6cf0;
+      --app-accent-soft:rgba(124,108,240,.16);
+      --app-good:#34c98f;
+    }
+  }
+  :root[data-theme="dark"]{
     --app-bg:#0b0c10;
     --app-panel:#141519;
     --app-panel-2:#191b21;
+    --app-panel-hover:#1e212a;
     --app-border:#262932;
+    --app-border-hover:#3a3e4a;
     --app-text:#e7e8ec;
     --app-text-dim:#8b8f99;
     --app-accent:#7c6cf0;
     --app-accent-soft:rgba(124,108,240,.16);
     --app-good:#34c98f;
-    --font-sans:"Inter",ui-sans-serif,system-ui,-apple-system,sans-serif;
-    --font-mono:"JetBrains Mono","SFMono-Regular",Consolas,monospace;
   }
   *{box-sizing:border-box}
   html,body{height:100%}
@@ -41,16 +73,32 @@
 
   /* ---------- topbar ---------- */
   .topbar{
+    position:relative;
     flex:0 0 auto;
     display:flex;
     align-items:center;
     flex-wrap:wrap;
     gap:10px 14px;
-    padding:12px 20px;
+    padding:12px 64px 12px 20px;
     padding-top:calc(12px + env(safe-area-inset-top,0px));
     border-bottom:1px solid var(--app-border);
     background:var(--app-panel);
   }
+
+  .theme-toggle{
+    position:absolute;
+    top:calc(12px + env(safe-area-inset-top,0px));
+    right:calc(20px + env(safe-area-inset-right,0px));
+    width:32px;height:32px;flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;
+    appearance:none;border:1px solid var(--app-border);
+    background:var(--app-panel-2);color:var(--app-text);
+    border-radius:8px;cursor:pointer;
+    transition:border-color .15s,background .15s;
+  }
+  .theme-toggle:hover{border-color:var(--app-border-hover);background:var(--app-panel-hover)}
+  .theme-toggle:focus-visible{outline:2px solid var(--app-accent);outline-offset:2px}
+  .theme-toggle svg{width:16px;height:16px}
   .brand{
     display:flex;
     align-items:center;
@@ -87,7 +135,7 @@
     transition:border-color .15s,background .15s,transform .1s;
     white-space:nowrap;
   }
-  .btn:hover{border-color:#3a3e4a;background:#1e212a}
+  .btn:hover{border-color:var(--app-border-hover);background:var(--app-panel-hover)}
   .btn:active{transform:translateY(1px)}
   .btn:focus-visible{outline:2px solid var(--app-accent);outline-offset:2px}
   .btn-accent{
@@ -98,10 +146,11 @@
   #fileInput{display:none}
 
   @media(max-width:640px){
-    .topbar{padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top,0px))}
+    .topbar{padding:10px 60px 10px 16px;padding-top:calc(10px + env(safe-area-inset-top,0px))}
     .brand{width:100%}
     .toolbar{width:100%;display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
     .btn{width:100%}
+    .theme-toggle{top:calc(10px + env(safe-area-inset-top,0px));right:calc(16px + env(safe-area-inset-right,0px))}
   }
 
   /* ---------- workspace ---------- */
@@ -302,7 +351,7 @@
     display:flex;flex-direction:column;
     transition:border-color .15s;
   }
-  .swatch:hover{border-color:#3a3e4a}
+  .swatch:hover{border-color:var(--app-border-hover)}
   .swatch:focus-visible{outline:2px solid var(--app-accent);outline-offset:2px}
   .swatch .sw-color{height:44px;border-radius:9px 9px 0 0}
   .swatch .sw-body{padding:9px 10px}
@@ -341,7 +390,7 @@
 
   .toast{
     position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(12px);
-    background:#1c1e26;border:1px solid var(--app-border);color:var(--app-text);
+    background:#1c1e26;border:1px solid rgba(255,255,255,.14);color:#f2f2f5;
     font-size:13px;padding:9px 16px;border-radius:9px;
     max-width:calc(100% - 32px);text-align:center;
     opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;
@@ -379,6 +428,10 @@
       </button>
       <button class="btn btn-accent" id="resetBtn" type="button">Clear</button>
     </div>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle light / dark theme" title="Toggle theme">
+      <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" hidden><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
   </header>
 
   <main class="workspace">
@@ -516,6 +569,62 @@
   var pHeadline = document.getElementById("pHeadline");
   var pSub = document.getElementById("pSub");
   var fakeUrl = document.getElementById("fakeUrl");
+  var themeToggle = document.getElementById("themeToggle");
+  var iconSun = document.getElementById("iconSun");
+  var iconMoon = document.getElementById("iconMoon");
+
+  // ---------------- theme ----------------
+
+  var THEME_KEY = "designmd-live-preview:theme";
+  var docEl = document.documentElement;
+
+  function systemPrefersDark(){
+    try{ return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches; }catch(e){ return false; }
+  }
+
+  function updateThemeIcons(mode){
+    iconSun.hidden = mode !== "dark";
+    iconMoon.hidden = mode === "dark";
+  }
+
+  function setExplicitTheme(mode){
+    docEl.setAttribute("data-theme", mode);
+    docEl.style.colorScheme = mode;
+    try{ localStorage.setItem(THEME_KEY, mode); }catch(e){}
+    updateThemeIcons(mode);
+  }
+
+  (function initTheme(){
+    var saved = null;
+    try{ saved = localStorage.getItem(THEME_KEY); }catch(e){}
+    if(saved === "light" || saved === "dark"){
+      docEl.setAttribute("data-theme", saved);
+      docEl.style.colorScheme = saved;
+      updateThemeIcons(saved);
+      return;
+    }
+    // no explicit choice yet: follow the OS live, via the CSS media query
+    var mode = systemPrefersDark() ? "dark" : "light";
+    docEl.style.colorScheme = mode;
+    updateThemeIcons(mode);
+    try{
+      var mq = window.matchMedia("(prefers-color-scheme: dark)");
+      var onChange = function(e){
+        var m = e.matches ? "dark" : "light";
+        docEl.style.colorScheme = m;
+        updateThemeIcons(m);
+      };
+      if(mq.addEventListener) mq.addEventListener("change", onChange);
+      else if(mq.addListener) mq.addListener(onChange);
+    }catch(e){ /* non-fatal */ }
+  })();
+
+  themeToggle.addEventListener("click", function(){
+    var saved = null;
+    try{ saved = localStorage.getItem(THEME_KEY); }catch(e){}
+    var current = (saved === "light" || saved === "dark") ? saved : (systemPrefersDark() ? "dark" : "light");
+    setExplicitTheme(current === "dark" ? "light" : "dark");
+  });
 
   var loadedFonts = {};
 
