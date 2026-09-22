@@ -124,6 +124,9 @@
     width:22px;height:22px;border-radius:6px;
     background:linear-gradient(135deg,var(--app-accent),#4fd1c5);
     flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-mono);font-size:10px;font-weight:700;
+    letter-spacing:-.04em;color:#fff;
   }
   .brand-name{
     font-weight:650;
@@ -432,7 +435,7 @@
 <div class="app">
   <header class="topbar">
     <div class="brand">
-      <div class="brand-mark"></div>
+      <div class="brand-mark" aria-hidden="true">&lt;/&gt;</div>
       <span class="brand-name">DESIGN.md Live Preview</span>
       <span class="brand-sub">edit a token, watch the UI change</span>
     </div>
