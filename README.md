@@ -17,6 +17,7 @@ No build step, no dependencies. It's one static `index.html` file.
 - **Light/dark theme** — the app shell follows your OS preference by default; the toggle in the top-right corner pins an explicit choice, remembered across visits.
 - **Collapsible editor** — the panel icon next to the theme toggle hides the editor so the preview fills the whole screen; the choice is remembered across visits.
 - **Grid, spacing and icon tokens** — also detects a column grid (`--grid-columns` / `--grid-gutter` / `--grid-margin` / `--grid-max-width`), a spacing scale (`--space-*`), and icon library tokens (a library link, `--icon-*` sizes, a weight/style table), each rendered as its own visual preview.
+- **Real icon glyphs, not one generic placeholder** — recognizes Phosphor, Lucide, Feather, Tabler, Heroicons and Font Awesome by name and renders that library's actual icon shape (real path data, no network fetch); an unrecognized library falls back to a generic star so nothing ever looks broken.
 - **Handles messy or partial files** — every section degrades to a plain "nothing detected here" note instead of breaking when a doc only defines some of these; an actual parsing crash shows an error panel (with the underlying message) instead of a blank or frozen preview.
 
 ## Usage
