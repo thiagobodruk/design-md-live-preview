@@ -404,6 +404,49 @@
     border-radius:10px;padding:12px 14px;
   }
 
+  .parse-error{
+    background:var(--app-panel);
+    border:1px solid rgba(220,38,38,.4);
+    border-radius:10px;
+    padding:16px;
+  }
+  .parse-error .pe-title{font-size:14px;font-weight:650;color:#dc2626;margin-bottom:6px}
+  .parse-error .pe-detail{
+    font-family:var(--font-mono);font-size:12px;color:var(--app-text-dim);
+    background:var(--app-panel-2);border:1px solid var(--app-border);border-radius:8px;
+    padding:8px 10px;margin-bottom:10px;overflow-wrap:break-word;
+  }
+  .parse-error .pe-hint{font-size:12.5px;color:var(--app-text-dim);line-height:1.5}
+
+  .grid-demo-track{display:grid;margin-bottom:8px}
+  .grid-demo-col{
+    height:26px;border-radius:4px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:9px;font-weight:700;
+  }
+  .grid-caption{font-size:12px;color:var(--app-text-dim)}
+
+  .spacing-scale{display:flex;flex-direction:column;gap:7px}
+  .spacing-row{display:grid;grid-template-columns:64px 1fr 48px;align-items:center;gap:8px}
+  .spacing-row .sp-token{font-family:var(--font-mono);font-size:11px;color:var(--app-text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .spacing-row .sp-bar-track{height:8px;border-radius:4px;background:var(--app-panel-2);overflow:hidden}
+  .spacing-row .sp-bar{display:block;height:100%;border-radius:4px}
+  .spacing-row .sp-value{font-family:var(--font-mono);font-size:11px;color:var(--app-text-dim);text-align:right}
+
+  .icon-lib-badge{
+    display:inline-flex;align-items:center;
+    font-size:12px;font-weight:600;color:var(--app-text);
+    background:var(--app-panel-2);border:1px solid var(--app-border);
+    border-radius:999px;padding:5px 12px;margin-bottom:10px;
+    text-decoration:none;
+  }
+  .icon-lib-badge:hover{border-color:var(--app-border-hover)}
+  .icon-size-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px}
+  .icon-size-item{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:44px}
+  .icon-glyph{display:flex;align-items:center;justify-content:center}
+  .icon-size-label{font-family:var(--font-mono);font-size:10px;color:var(--app-text-dim);text-align:center;line-height:1.4}
+  .icon-usage{font-size:12px;color:var(--app-text-dim);margin-top:4px}
+
   .app-footer{
     text-align:center;
     font-size:12px;color:var(--app-text-dim);
@@ -484,6 +527,14 @@
       <div class="preview-scroll">
         <div class="preview-inner">
 
+          <div class="parse-error" id="parseError" hidden>
+            <div class="pe-title">Couldn't render a preview from this file</div>
+            <div class="pe-detail" id="parseErrorDetail"></div>
+            <div class="pe-hint">Check for unclosed code fences (```), malformed tables, or unbalanced brackets — fix the Markdown and it retries automatically.</div>
+          </div>
+
+          <div id="previewContent">
+
           <div class="canvas-frame">
             <div class="canvas-chrome">
               <div class="dots"><span></span><span></span><span></span></div>
@@ -524,6 +575,14 @@
             <div class="swatch-grid" id="swatchGrid"></div>
             <h3 class="second">Detected typography</h3>
             <div class="type-specimens" id="typeSpecimens"></div>
+            <h3 class="second">Detected grid</h3>
+            <div id="gridPreview"></div>
+            <h3 class="second">Detected spacing scale</h3>
+            <div id="spacingPreview"></div>
+            <h3 class="second">Detected icon tokens</h3>
+            <div id="iconsPreview"></div>
+          </div>
+
           </div>
 
           <footer class="app-footer">Created by <a href="https://github.com/thiagobodruk" target="_blank" rel="noopener">Thiago Bodruk</a></footer>
@@ -575,6 +634,50 @@
 "",
 "--radius: 12px;",
 "",
+"## Grid",
+"",
+"12 columns, with fixed gutter and margin.",
+"",
+"```css",
+":root {",
+"  --grid-columns: 12;",
+"  --grid-gutter: 24px;",
+"  --grid-margin: 24px;",
+"  --grid-max-width: 1280px;",
+"}",
+"```",
+"",
+"## Spacing",
+"",
+"Scale based on multiples of 4px.",
+"",
+"```css",
+":root {",
+"  --space-1: 4px;",
+"  --space-2: 8px;",
+"  --space-3: 12px;",
+"  --space-4: 16px;",
+"  --space-6: 24px;",
+"  --space-8: 32px;",
+"  --space-12: 48px;",
+"}",
+"```",
+"",
+"## Icons",
+"",
+"Library: [Phosphor Icons](https://phosphoricons.com).",
+"",
+"| Token | Weight | Usage |",
+"|---|---|---|",
+"| icon-regular | Regular | Default in UI, dashboards, lists |",
+"| icon-bold | Bold | Emphasis, buttons, active states |",
+"",
+"```css",
+"--icon-sm: 16px;",
+"--icon-md: 20px;",
+"--icon-lg: 24px;",
+"```",
+"",
 "## Usage notes",
 "",
 "Use `primary` only on interactive elements (buttons, links, focus states).",
@@ -590,8 +693,14 @@
   var sampleBtn = document.getElementById("sampleBtn");
   var resetBtn = document.getElementById("resetBtn");
   var previewCanvas = document.getElementById("previewCanvas");
+  var previewContent = document.getElementById("previewContent");
+  var parseError = document.getElementById("parseError");
+  var parseErrorDetail = document.getElementById("parseErrorDetail");
   var swatchGrid = document.getElementById("swatchGrid");
   var typeSpecimens = document.getElementById("typeSpecimens");
+  var gridPreview = document.getElementById("gridPreview");
+  var spacingPreview = document.getElementById("spacingPreview");
+  var iconsPreview = document.getElementById("iconsPreview");
   var tokenSummary = document.getElementById("tokenSummary");
   var toast = document.getElementById("toast");
   var pWordmark = document.getElementById("pWordmark");
@@ -839,17 +948,28 @@
     return out;
   }
 
+  function normalizeTokenName(name){
+    return (name||"").toLowerCase().trim().replace(/^(?:color|clr|c)-/,"");
+  }
+
   function mergeColors(text){
-    var byHex = {};
+    // keyed by hex+normalized-name, not hex alone: two different tokens that
+    // happen to share a value (e.g. `background` and `surface` both #FFF)
+    // must both stay visible, while `primary` and `color-primary` found via
+    // different extractors should still collapse into one card.
+    var byKey = {};
     var order = [];
+    var seenHex = {};
     function add(list){
       list.forEach(function(c){
         if(!isValidHex(c.hex)) return;
-        if(!byHex[c.hex]){
-          byHex[c.hex] = { name: c.name, hex: c.hex, roleHint: c.roleHint || "" };
-          order.push(c.hex);
-        } else if(c.roleHint && !byHex[c.hex].roleHint){
-          byHex[c.hex].roleHint = c.roleHint;
+        seenHex[c.hex] = true;
+        var key = c.hex + "|" + normalizeTokenName(c.name);
+        if(!byKey[key]){
+          byKey[key] = { name: c.name, hex: c.hex, roleHint: c.roleHint || "" };
+          order.push(key);
+        } else if(c.roleHint && !byKey[key].roleHint){
+          byKey[key].roleHint = c.roleHint;
         }
       });
     }
@@ -857,9 +977,9 @@
     add(extractColorsFromCssBlocks(text));
     add(extractColorsFromLists(text));
     if(order.length < 3){
-      add(extractColorsFallback(text, byHex));
+      add(extractColorsFallback(text, seenHex));
     }
-    return order.map(function(h){ return byHex[h]; }).slice(0, 18);
+    return order.map(function(k){ return byKey[k]; }).slice(0, 18);
   }
 
   var ROLE_PATTERNS = [
@@ -935,12 +1055,16 @@
 
   // ---------------- typography extraction ----------------
 
+  var CSS_VALUE_KEYWORDS = { "var":1, "inherit":1, "initial":1, "unset":1, "none":1, "normal":1 };
+
   function extractTypography(text){
     var fonts = [];
     var seen = {};
     function pushFont(fam){
       fam = (fam||"").split(",")[0].replace(/['"]/g,"").trim();
-      if(fam && !seen[fam.toLowerCase()]){ seen[fam.toLowerCase()] = true; fonts.push(fam); }
+      if(!fam) return;
+      if(CSS_VALUE_KEYWORDS[fam.toLowerCase()]) return; // e.g. `font-family: var(--font-heading);`
+      if(!seen[fam.toLowerCase()]){ seen[fam.toLowerCase()] = true; fonts.push(fam); }
     }
 
     var declRe = /font[- ]?family\s*[:=]\s*[`'"]?([A-Za-z0-9 ,._-]+?)[`'"]?(?:[;,\n]|$)/gi;
@@ -988,6 +1112,133 @@
     return m ? m[1] : null;
   }
 
+  function toPxNumber(str){
+    if(!str) return null;
+    var m = String(str).match(/^([\d.]+)\s*(px|rem)?$/i);
+    if(!m) return null;
+    var n = parseFloat(m[1]);
+    if(isNaN(n)) return null;
+    return (m[2] && m[2].toLowerCase() === "rem") ? n * 16 : n;
+  }
+
+  // ---------------- grid extraction ----------------
+
+  function extractGrid(text){
+    function firstMatch(list){
+      for(var i=0;i<list.length;i++){
+        var m = text.match(list[i]);
+        if(m) return m[1];
+      }
+      return null;
+    }
+    var columnsRaw = firstMatch([
+      /--grid-columns\s*:\s*(\d+)/i,
+      /(\d+)\s*(?:columns?|colunas?)\b/i
+    ]);
+    var gutter = firstMatch([/--grid-gutter\s*:\s*([\d.]+(?:px|rem))/i]);
+    var margin = firstMatch([/--grid-margin\s*:\s*([\d.]+(?:px|rem))/i]);
+    var maxWidth = firstMatch([/--grid-max-width\s*:\s*([\d.]+(?:px|rem))/i]);
+    var columns = columnsRaw ? parseInt(columnsRaw, 10) : null;
+    if(columns !== null && (isNaN(columns) || columns <= 0)) columns = null;
+    if(!columns && !gutter && !margin && !maxWidth) return null;
+    return { columns: columns, gutter: gutter, margin: margin, maxWidth: maxWidth };
+  }
+
+  // ---------------- spacing extraction ----------------
+
+  function extractSpacing(text){
+    var out = [];
+    var seen = {};
+    var re = /--space(?:-|=)?([\w.]*)\s*:\s*([\d.]+(?:px|rem))\s*;/gi;
+    var m;
+    while((m = re.exec(text))){
+      var suffix = m[1] ? "-" + m[1] : "";
+      var token = "space" + suffix;
+      if(seen[token]) continue;
+      seen[token] = true;
+      out.push({ token: token, value: m[2] });
+    }
+    if(!out.length){
+      splitTables(text).forEach(function(rows){
+        if(rows.length < 2) return;
+        var header = rows[0];
+        var headerText = header.join(" ").toLowerCase();
+        if(!/space|spacing|espaç/.test(headerText)) return;
+        var tokenIdx = colIndex(header, ["token","name"]);
+        var dataStart = 1;
+        if(rows[1] && isSeparatorRow(rows[1])) dataStart = 2;
+        for(var r=dataStart;r<rows.length;r++){
+          var row = rows[r];
+          var token = stripMd(tokenIdx >= 0 ? row[tokenIdx] : row[0]);
+          var value = null;
+          for(var c=0;c<row.length;c++){
+            var vm = row[c].match(/\d+(?:\.\d+)?(?:px|rem)\b/);
+            if(vm){ value = vm[0]; break; }
+          }
+          if(token && value && !seen[token]){ seen[token] = true; out.push({ token: token, value: value }); }
+        }
+      });
+    }
+    out.sort(function(a,b){ return (toPxNumber(a.value) || 0) - (toPxNumber(b.value) || 0); });
+    return out.slice(0, 14);
+  }
+
+  // ---------------- icon token extraction ----------------
+
+  function extractIcons(text){
+    var library = null;
+    var headingMatch = text.match(/^#{1,6}[^\n]*?(?:ícon|icon)[^\n]*$/im);
+    if(headingMatch){
+      var startIdx = headingMatch.index + headingMatch[0].length;
+      var slice = text.slice(startIdx, startIdx + 600);
+      var linkM = slice.match(/\[([^\]]+)\]\(([^)]+)\)/);
+      if(linkM) library = { name: linkM[1].trim(), url: linkM[2].trim() };
+    }
+    if(!library){
+      var anyLink = text.match(/\[([^\]]*icon[^\]]*)\]\(([^)]+)\)/i);
+      if(anyLink) library = { name: anyLink[1].trim(), url: anyLink[2].trim() };
+    }
+
+    var sizes = [];
+    var seenSize = {};
+    var sizeRe = /--icon-([\w-]+)\s*:\s*([\d.]+(?:px|rem))/gi;
+    var sm;
+    while((sm = sizeRe.exec(text))){
+      var key = sm[1].toLowerCase();
+      if(seenSize[key]) continue;
+      seenSize[key] = true;
+      sizes.push({ token: "icon-" + sm[1], value: sm[2] });
+    }
+    sizes.sort(function(a,b){ return (toPxNumber(a.value) || 0) - (toPxNumber(b.value) || 0); });
+
+    var weights = [];
+    splitTables(text).forEach(function(rows){
+      if(rows.length < 2) return;
+      var header = rows[0];
+      var tokenIdx = colIndex(header, ["token","name"]);
+      var weightIdx = colIndex(header, ["peso","weight","style"]);
+      var usageIdx = colIndex(header, ["uso","usage","use"]);
+      var dataStart = 1;
+      if(rows[1] && isSeparatorRow(rows[1])) dataStart = 2;
+      var looksIconTable = false;
+      for(var r=dataStart;r<rows.length;r++){
+        var probe = tokenIdx >= 0 ? rows[r][tokenIdx] : rows[r][0];
+        if(probe && /icon/i.test(probe)){ looksIconTable = true; break; }
+      }
+      if(!looksIconTable) return;
+      for(var r2=dataStart;r2<rows.length;r2++){
+        var row = rows[r2];
+        var token = stripMd(tokenIdx >= 0 ? row[tokenIdx] : row[0]);
+        var weight = weightIdx >= 0 ? stripMd(row[weightIdx]) : "";
+        var usage = usageIdx >= 0 ? stripMd(row[usageIdx]) : "";
+        if(token) weights.push({ token: token, weight: weight, usage: usage });
+      }
+    });
+
+    if(!library && !sizes.length && !weights.length) return null;
+    return { library: library, sizes: sizes.slice(0, 8), weights: weights.slice(0, 10) };
+  }
+
   // ---------------- google fonts loading ----------------
 
   function loadGoogleFont(family){
@@ -1030,11 +1281,33 @@
     toastTimer = setTimeout(function(){ toast.classList.remove("show"); }, 1400);
   }
 
+  function appendEmptyNote(container, msg){
+    var e = document.createElement("div");
+    e.className = "empty-note";
+    e.textContent = msg;
+    container.appendChild(e);
+  }
+
   function render(text){
+    try{
+      renderPreview(text);
+      parseError.hidden = true;
+      previewContent.hidden = false;
+    }catch(err){
+      previewContent.hidden = true;
+      parseError.hidden = false;
+      parseErrorDetail.textContent = (err && err.message) ? err.message : String(err);
+    }
+  }
+
+  function renderPreview(text){
     var colors = mergeColors(text);
     var roles = assignRoles(colors);
     var typo = extractTypography(text);
     var radius = extractRadius(text);
+    var grid = extractGrid(text);
+    var spacing = extractSpacing(text);
+    var icons = extractIcons(text);
 
     var onPrimary = luminance(roles.primary.hex) > 0.55 ? "#111111" : "#FFFFFF";
     var textMuted = mix(roles.text.hex, roles.background.hex, 0.45);
@@ -1087,10 +1360,7 @@
 
     swatchGrid.innerHTML = "";
     if(!colors.length){
-      var empty = document.createElement("div");
-      empty.className = "empty-note";
-      empty.textContent = "No #hex colors found yet. Add a table, list, or CSS block with values like #4F46E5.";
-      swatchGrid.appendChild(empty);
+      appendEmptyNote(swatchGrid, "No #hex colors found yet. Add a table, list, or CSS block with values like #4F46E5.");
     } else {
       colors.forEach(function(c){
         var el = document.createElement("button");
@@ -1112,10 +1382,7 @@
 
     typeSpecimens.innerHTML = "";
     if(!typo.fonts.length){
-      var emptyT = document.createElement("div");
-      emptyT.className = "empty-note";
-      emptyT.textContent = "No fonts detected. Add font-family in a typography table or CSS block.";
-      typeSpecimens.appendChild(emptyT);
+      appendEmptyNote(typeSpecimens, "No fonts detected. Add font-family in a typography table or CSS block.");
     } else {
       typo.fonts.slice(0,4).forEach(function(fam){
         var role = fam === typo.headingFont ? "Heading" : (fam === typo.bodyFont ? "Body" : "Detected");
@@ -1128,7 +1395,111 @@
       });
     }
 
+    renderGrid(grid, roles);
+    renderSpacing(spacing, roles);
+    renderIcons(icons, roles);
+
     tokenSummary.textContent = colors.length + " colors · " + typo.fonts.length + " fonts" + (radius ? " · radius " + radius : "");
+  }
+
+  function renderGrid(grid, roles){
+    gridPreview.innerHTML = "";
+    if(!grid){
+      appendEmptyNote(gridPreview, "No grid tokens detected. Add --grid-columns / --grid-gutter / --grid-margin in a CSS block, or mention “12 columns” in the text.");
+      return;
+    }
+    var cols = grid.columns || 12;
+    var demoCols = Math.max(1, Math.min(cols, 16));
+    var gutterPx = toPxNumber(grid.gutter);
+    var marginPx = toPxNumber(grid.margin);
+    var tint = mix(roles.primary.hex, roles.background.hex, 0.86);
+
+    var track = document.createElement("div");
+    track.className = "grid-demo-track";
+    track.style.gridTemplateColumns = "repeat(" + demoCols + ", 1fr)";
+    track.style.gap = (gutterPx != null ? Math.min(gutterPx, 28) : 8) + "px";
+    track.style.paddingInline = (marginPx != null ? Math.min(marginPx, 36) : 0) + "px";
+    for(var i=0;i<demoCols;i++){
+      var col = document.createElement("div");
+      col.className = "grid-demo-col";
+      col.style.background = tint;
+      col.style.color = roles.primary.hex;
+      col.textContent = String(i+1);
+      track.appendChild(col);
+    }
+    gridPreview.appendChild(track);
+
+    var caption = document.createElement("div");
+    caption.className = "grid-caption";
+    var parts = [(grid.columns || demoCols) + " columns"];
+    if(grid.gutter) parts.push(grid.gutter + " gutter");
+    if(grid.margin) parts.push(grid.margin + " margin");
+    if(grid.maxWidth) parts.push("max-width " + grid.maxWidth);
+    caption.textContent = parts.join(" · ");
+    gridPreview.appendChild(caption);
+  }
+
+  function renderSpacing(spacing, roles){
+    spacingPreview.innerHTML = "";
+    if(!spacing.length){
+      appendEmptyNote(spacingPreview, "No spacing scale detected. Add --space-1, --space-2, … in a CSS block, or a table under a “Spacing” heading.");
+      return;
+    }
+    var maxPx = spacing.reduce(function(m,s){ return Math.max(m, toPxNumber(s.value) || 0); }, 1);
+    var list = document.createElement("div");
+    list.className = "spacing-scale";
+    spacing.forEach(function(s){
+      var px = toPxNumber(s.value) || 0;
+      var pct = Math.max(4, Math.min(100, (px / maxPx) * 100));
+      var row = document.createElement("div");
+      row.className = "spacing-row";
+      row.innerHTML =
+        '<span class="sp-token">' + escapeHtml(s.token) + '</span>' +
+        '<span class="sp-bar-track"><span class="sp-bar" style="width:' + pct + '%;background:' + roles.primary.hex + '"></span></span>' +
+        '<span class="sp-value">' + escapeHtml(s.value) + '</span>';
+      list.appendChild(row);
+    });
+    spacingPreview.appendChild(list);
+  }
+
+  function renderIcons(icons, roles){
+    iconsPreview.innerHTML = "";
+    if(!icons){
+      appendEmptyNote(iconsPreview, "No icon tokens detected. Mention a library link near an “Icons” heading, or add --icon-sm / --icon-md / --icon-lg.");
+      return;
+    }
+
+    if(icons.library){
+      var lib = document.createElement(icons.library.url ? "a" : "div");
+      lib.className = "icon-lib-badge";
+      if(icons.library.url){ lib.href = icons.library.url; lib.target = "_blank"; lib.rel = "noopener"; }
+      lib.textContent = icons.library.name;
+      iconsPreview.appendChild(lib);
+    }
+
+    if(icons.sizes.length){
+      var sizeRow = document.createElement("div");
+      sizeRow.className = "icon-size-row";
+      icons.sizes.forEach(function(s){
+        var px = toPxNumber(s.value) || 20;
+        var item = document.createElement("div");
+        item.className = "icon-size-item";
+        item.innerHTML =
+          '<span class="icon-glyph" style="color:' + roles.primary.hex + '"><svg viewBox="0 0 24 24" width="' + px + '" height="' + px + '" fill="currentColor"><path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2L12 16.4l-6.3 4.6L8 13.8 2 9.2h7.6z"/></svg></span>' +
+          '<span class="icon-size-label">' + escapeHtml(s.token) + '<br>' + escapeHtml(s.value) + '</span>';
+        sizeRow.appendChild(item);
+      });
+      iconsPreview.appendChild(sizeRow);
+    }
+
+    icons.weights.forEach(function(w){
+      var el = document.createElement("div");
+      el.className = "specimen";
+      el.innerHTML =
+        '<div class="sp-label"><b>' + escapeHtml(w.token) + '</b><span>' + escapeHtml(w.weight) + '</span></div>' +
+        (w.usage ? '<div class="icon-usage">' + escapeHtml(w.usage) + '</div>' : '');
+      iconsPreview.appendChild(el);
+    });
   }
 
   function escapeHtml(s){

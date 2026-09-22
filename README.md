@@ -16,6 +16,8 @@ No build step, no dependencies. It's one static `index.html` file.
 - **Local persistence** — your last-edited content is kept in the browser's `localStorage`, so refreshing doesn't lose your work.
 - **Light/dark theme** — the app shell follows your OS preference by default; the toggle in the top-right corner pins an explicit choice, remembered across visits.
 - **Collapsible editor** — the panel icon next to the theme toggle hides the editor so the preview fills the whole screen; the choice is remembered across visits.
+- **Grid, spacing and icon tokens** — also detects a column grid (`--grid-columns` / `--grid-gutter` / `--grid-margin` / `--grid-max-width`), a spacing scale (`--space-*`), and icon library tokens (a library link, `--icon-*` sizes, a weight/style table), each rendered as its own visual preview.
+- **Handles messy or partial files** — every section degrades to a plain "nothing detected here" note instead of breaking when a doc only defines some of these; an actual parsing crash shows an error panel (with the underlying message) instead of a blank or frozen preview.
 
 ## Usage
 
@@ -49,6 +51,12 @@ The parser looks for color tokens in this order of priority, merging whatever it
 4. **Fallback scan** — any `#hex` value found near a short label, used only when fewer than 3 colors were found above.
 
 Typography works the same way, reading `font-family` / `size` / `weight` from a table or a `font-family: ...` declaration. A `radius: 12px` (or `raio` in Portuguese source docs) mention anywhere sets the mockup's corner radius.
+
+Grid, spacing and icons follow the same table-or-CSS-block convention:
+
+- **Grid**: `--grid-columns`, `--grid-gutter`, `--grid-margin`, `--grid-max-width` in a CSS block, or just a "12 columns" mention in prose.
+- **Spacing**: `--space-1`, `--space-2`, … in a CSS block, or a table under a heading containing "spacing"/"espaçamento".
+- **Icons**: a library name+link near an "Icons"/"Ícones" heading, `--icon-sm` / `--icon-md` / `--icon-lg` (or any `--icon-*`) for sizes, and any table whose token column contains "icon" for weights/styles.
 
 ## How it's built
 
