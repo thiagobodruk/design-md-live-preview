@@ -427,7 +427,7 @@
 
   .grid-demo-track{display:grid;margin-bottom:10px}
   .grid-demo-col{
-    height:26px;border-radius:4px;
+    height:26px;border-radius:4px;overflow:hidden;
     display:flex;align-items:center;justify-content:center;
     font-size:9px;font-weight:700;
   }
@@ -933,7 +933,7 @@
 
   function extractColorsFromLists(text){
     var out = [];
-    var re = /^[-*]\s*\*{0,2}`?([A-Za-z][\w\s\/-]{0,30}?)`?\*{0,2}\s*[:=]\s*`?(#[0-9A-Fa-f]{3,8})`?/gm;
+    var re = /^[-*]\s*\*{0,2}`?([A-Za-z][\w \/-]{0,30}?)`?\*{0,2}\s*[:=]\s*`?(#[0-9A-Fa-f]{3,8})`?/gm;
     var m;
     while((m = re.exec(text))){
       out.push({ name: m[1].trim(), hex: normalizeHex(m[2]), roleHint: "" });
@@ -943,7 +943,7 @@
 
   function extractColorsFallback(text, excludeSet){
     var out = [];
-    var re = /([A-Za-z][\w\s\/-]{0,24}?)[\s:\-]{1,3}`?(#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3})\b`?/g;
+    var re = /([A-Za-z][\w \/-]{0,24}?)[ \t:\-]{1,3}`?(#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3})\b`?/g;
     var m;
     var seen = {};
     while((m = re.exec(text))){
@@ -1195,15 +1195,24 @@
   function extractIcons(text){
     var library = null;
     var headingMatch = text.match(/^#{1,6}[^\n]*?(?:ícon|icon)[^\n]*$/im);
+    var sectionSlice = "";
     if(headingMatch){
       var startIdx = headingMatch.index + headingMatch[0].length;
-      var slice = text.slice(startIdx, startIdx + 600);
-      var linkM = slice.match(/\[([^\]]+)\]\(([^)]+)\)/);
+      sectionSlice = text.slice(startIdx, startIdx + 600);
+      var linkM = sectionSlice.match(/\[([^\]]+)\]\(([^)]+)\)/);
       if(linkM) library = { name: linkM[1].trim(), url: linkM[2].trim() };
     }
     if(!library){
       var anyLink = text.match(/\[([^\]]*icon[^\]]*)\]\(([^)]+)\)/i);
       if(anyLink) library = { name: anyLink[1].trim(), url: anyLink[2].trim() };
+    }
+    if(!library && sectionSlice){
+      // no markdown link — fall back to a plain "Library: Name" / "Biblioteca: Name" mention
+      var labelM = sectionSlice.match(/(?:library|biblioteca)\s*:\s*([^\n(]+)/i);
+      if(labelM){
+        var plainName = labelM[1].replace(/[.:;]+\s*$/,"").trim();
+        if(plainName) library = { name: plainName, url: null };
+      }
     }
 
     var sizes = [];
@@ -1293,6 +1302,10 @@
     e.className = "empty-note";
     e.textContent = msg;
     container.appendChild(e);
+  }
+
+  function pluralize(n, word){
+    return n + " " + word + (n === 1 ? "" : "s");
   }
 
   function render(text){
@@ -1406,7 +1419,7 @@
     renderSpacing(spacing, roles);
     renderIcons(icons, roles);
 
-    tokenSummary.textContent = colors.length + " colors · " + typo.fonts.length + " fonts" + (radius ? " · radius " + radius : "");
+    tokenSummary.textContent = pluralize(colors.length, "color") + " · " + pluralize(typo.fonts.length, "font") + (radius ? " · radius " + radius : "");
   }
 
   function renderGrid(grid, roles){
@@ -1416,7 +1429,7 @@
       return;
     }
     var cols = grid.columns || 12;
-    var demoCols = Math.max(1, Math.min(cols, 16));
+    var demoCols = Math.max(1, Math.min(cols, 12));
     var gutterPx = toPxNumber(grid.gutter);
     var marginPx = toPxNumber(grid.margin);
     var tint = mix(roles.primary.hex, roles.background.hex, 0.86);
@@ -1426,9 +1439,11 @@
 
     var track = document.createElement("div");
     track.className = "grid-demo-track";
-    track.style.gridTemplateColumns = "repeat(" + demoCols + ", 1fr)";
-    track.style.gap = (gutterPx != null ? Math.min(gutterPx, 28) : 8) + "px";
-    track.style.paddingInline = (marginPx != null ? Math.min(marginPx, 36) : 0) + "px";
+    // minmax(0,1fr), not 1fr alone: a plain 1fr track won't shrink past its
+    // content's intrinsic width, which overflowed the card on narrow screens.
+    track.style.gridTemplateColumns = "repeat(" + demoCols + ", minmax(0,1fr))";
+    track.style.gap = (gutterPx != null ? Math.min(gutterPx, 10) : 6) + "px";
+    track.style.paddingInline = (marginPx != null ? Math.min(marginPx, 16) : 0) + "px";
     for(var i=0;i<demoCols;i++){
       var col = document.createElement("div");
       col.className = "grid-demo-col";
